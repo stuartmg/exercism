@@ -4,36 +4,34 @@ end
 
 class Integer
 
+  ROMAN_NUMERALS = {
+    "M": 1000,
+    "CM": 900,
+    "D": 500,
+    "CD": 400,
+    "C": 100,
+    "XC": 90,
+    "L": 50,
+    "XL": 40,
+    "X": 10,
+    "IX": 9,
+    "V": 5,
+    "IV": 4,
+    "I": 1
+  }
+
   def to_roman
     val = self
     roman = ""
 
-    val, roman = convert_roman(val, roman, 1000, "M")
-    val, roman = convert_roman(val, roman, 900, "CM")
-    val, roman = convert_roman(val, roman, 500, "D")
-    val, roman = convert_roman(val, roman, 400, "CD")
-    val, roman = convert_roman(val, roman, 100, "C")
-    val, roman = convert_roman(val, roman, 90, "XC")
-    val, roman = convert_roman(val, roman, 50, "L")
-    val, roman = convert_roman(val, roman, 40, "XL")
-    val, roman = convert_roman(val, roman, 10, "X")
-    val, roman = convert_roman(val, roman, 9, "IX")
-    val, roman = convert_roman(val, roman, 5, "V")
-    val, roman = convert_roman(val, roman, 4, "IV")
-    val, roman = convert_roman(val, roman, 1, "I")
-
-    roman
-  end
-
-  private
-
-  def convert_roman(value, roman, num, letter)
-    while value >= num
-      roman << letter
-      value -= num
+    ROMAN_NUMERALS.each do |k,v|
+      while val >= v
+        roman << k.to_s
+        val -= v
+      end
     end
 
-    return value, roman
+    roman
   end
 
 end
