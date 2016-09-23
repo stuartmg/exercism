@@ -4,8 +4,8 @@ end
 
 class Gigasecond
 
-  def self.from(birthday)
-    Time.at(birthday.to_i + 1_000_000_000).utc
+  def self.from(time)
+    time + (10 ** 9)
   end
 
 end
