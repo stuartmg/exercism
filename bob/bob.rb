@@ -1,14 +1,11 @@
 class Bob
 
   def hey(phrase)
-    if yelling?(phrase)
-      "Whoa, chill out!"
-    elsif silence?(phrase)
-      "Fine. Be that way!"
-    elsif question?(phrase)
-      "Sure."
-    else
-      "Whatever."
+    case
+      when yelling?(phrase) then "Whoa, chill out!"
+      when silence?(phrase) then "Fine. Be that way!"
+      when question?(phrase) then "Sure."
+      else "Whatever."
     end
   end
 
