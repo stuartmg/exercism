@@ -7,22 +7,14 @@ class PhoneNumber
   end
 
   def area_code
-    number.slice(0, 3)
+    number[0..2]
   end
 
   def to_s
-    "(#{area_code}) #{prefix}-#{suffix}"
+    "(#{area_code}) #{number[3..5]}-#{number[6..-1]}"
   end
 
   private
-
-  def prefix
-    number.slice(3, 3)
-  end
-
-  def suffix
-    number.slice(6..-1)
-  end
 
   def clean_number(number)
     return "0000000000" unless number.gsub(/[\(\)\-\. ]/, '').match(/\A\d+\z/)
