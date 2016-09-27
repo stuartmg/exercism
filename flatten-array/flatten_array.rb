@@ -3,17 +3,12 @@ class FlattenArray
   VERSION = 1
 
   def self.flatten(nested)
-    return [] if nested.nil? || nested.empty?
-
-    head = nested.first
-    tail = nested.slice(1..-1)
-
-    if head.nil?
-      [] + flatten(tail)
-    elsif head.class == Array
-      flatten(head) + flatten(tail)
-    else
-      [head] + flatten(tail)
+    nested.each_with_object([]) do |el, flattened|
+      if el.is_a? Array
+        flattened.push *flatten(el)
+      else
+        flattened << el if el
+      end
     end
   end
 
