@@ -1,15 +1,11 @@
 class Array
 
   def keep
-    results = []
-    each { |e| results << e if yield(e) }
-    results
+    each_with_object([]) { |e, results| results << e if yield(e) }
   end
 
   def discard
-    results = []
-    each { |e| results << e unless yield(e) }
-    results
+    each_with_object([]) { |e, results| results << e unless yield(e) }
   end
 
 end
