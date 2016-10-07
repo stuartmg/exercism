@@ -14,7 +14,6 @@ class Robot
 
   def orient(direction)
     raise ArgumentError, "Invalid direction" unless DIRECTIONS.include? direction
-
     @direction = direction
   end
 
@@ -27,21 +26,13 @@ class Robot
   end
 
   def turn_right
-    case @direction
-    when :east then @direction = :south
-    when :west then @direction = :north
-    when :north then @direction = :east
-    when :south then @direction = :west
-    end
+    dir_idx = (DIRECTIONS.index(@direction) + 1) % DIRECTIONS.length
+    orient DIRECTIONS[dir_idx]
   end
 
   def turn_left
-    case @direction
-    when :east then @direction = :north
-    when :west then @direction = :south
-    when :north then @direction = :west
-    when :south then @direction = :east
-    end
+    dir_idx = (DIRECTIONS.index(@direction) - 1) % DIRECTIONS.length
+    orient DIRECTIONS[dir_idx]
   end
 
   def advance
@@ -52,6 +43,7 @@ class Robot
     when :west then at(@x-1, @y)
     end
   end
+
 
 end
 
