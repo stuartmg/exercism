@@ -11,26 +11,10 @@ class Matrix
   end
 
   def saddle_points
-    largest_in_rows & smallest_in_columns
-  end
-
-  private
-
-  def largest_in_rows
-    rows.each_with_index.reduce([]) do |acc, (row, row_num)|
-      row.each_with_index.each do |val, col_num|
-        acc << [row_num, col_num] if val == row.max
+    columns.map(&:min).each_with_object([]) do |val, acc|
+      rows.each_with_index do |row, row_num|
+        acc << [row_num, row.index(val)] if row.max == val
       end
-      acc
-    end
-  end
-
-  def smallest_in_columns
-    columns.each_with_index.reduce([]) do |acc, (col, col_num)|
-      col.each_with_index.each do |val, row_num|
-        acc << [row_num, col_num] if val == col.min
-      end
-      acc
     end
   end
 
