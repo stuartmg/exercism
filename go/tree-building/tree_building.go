@@ -2,7 +2,7 @@ package tree
 
 import (
 	"errors"
-	"fmt"
+	"sort"
 )
 
 type Record struct {
@@ -25,99 +25,61 @@ func Build(records []Record) (*Node, error) {
 		return nil, nil
 	}
 
-	// check for duplicate nodes
-	dupe := make(map[int]*Record)
-	for _, r := range records {
-		temp := dupe[r.ID]
+	// put records in order (we need parent records to exist before we process child records)
+	sort.Slice(records, func(i, j int) bool {
+		return records[i].Parent <= records[j].Parent && records[i].ID <= records[j].ID
+	})
 
-		if temp == nil {
-			dupe[r.ID] = &r
+	var nodes = make(map[int]*Node)
+	var root *Node
+
+	for _, record := range records {
+		var node = &Node{ID: record.ID}
+
+		// check to see if this is a duplicate node
+		if nodes[record.ID] != nil {
+			return nil, errors.New("Duplicate node found")
+		}
+
+		if record.ID == 0 {
+			// check if we already have a root node
+			if root != nil {
+				return nil, errors.New("Multiple root nodes found")
+			}
+
+			// make sure node's parent is also zero
+			if record.Parent != 0 {
+				return nil, errors.New("Invalid node found")
+			}
+
+			root = node
+			nodes[0] = root
 			continue
 		}
 
-		if temp.Parent == r.Parent {
-			return nil, fmt.Errorf("Node is a duplicate - {ID: %d, Parent: %d}", r.ID, r.Parent)
+		// make sure node id is less than parent id
+		if record.ID <= record.Parent {
+			return nil, errors.New("Invalid node found")
+		}
+
+		parent := nodes[record.Parent]
+		if parent == nil {
+			return nil, errors.New("Unknown parent node")
+		}
+
+		// add node to parent and resort the parent's children
+		parent.Children = append(parent.Children, node)
+		sort.Slice(parent.Children, func(i, j int) bool { return parent.Children[i].ID < parent.Children[j].ID })
+
+		nodes[record.ID] = node
+	}
+
+	// make sure there are no gaps in IDs
+	for i := 0; i < len(records); i++ {
+		if nodes[i] == nil {
+			return nil, errors.New("Gap found in IDs")
 		}
 	}
 
-	root := &Node{}
-	todo := []*Node{root}
-	n := 1
-	for {
-		if len(todo) == 0 {
-			break
-		}
-		newTodo := []*Node(nil)
-		for _, c := range todo {
-			for _, r := range records {
-				if r.Parent == c.ID {
-					if r.ID < c.ID {
-						return nil, errors.New("a")
-					} else if r.ID == c.ID {
-						if r.ID != 0 {
-							return nil, fmt.Errorf("b")
-						}
-					} else {
-						n++
-						switch len(c.Children) {
-						case 0:
-							nn := &Node{ID: r.ID}
-							c.Children = []*Node{nn}
-							newTodo = append(newTodo, nn)
-						case 1:
-							nn := &Node{ID: r.ID}
-							if c.Children[0].ID < r.ID {
-								c.Children = []*Node{c.Children[0], nn}
-								newTodo = append(newTodo, nn)
-							} else {
-								c.Children = []*Node{nn, c.Children[0]}
-								newTodo = append(newTodo, nn)
-							}
-						default:
-							nn := &Node{ID: r.ID}
-							newTodo = append(newTodo, nn)
-						breakpoint:
-							for range []bool{false} {
-								for i, cc := range c.Children {
-									if cc.ID > r.ID {
-										a := make([]*Node, len(c.Children)+1)
-										copy(a, c.Children[:i])
-										copy(a[i+1:], c.Children[i:])
-										copy(a[i:i+1], []*Node{nn})
-										c.Children = a
-										break breakpoint
-									}
-								}
-								c.Children = append(c.Children, nn)
-							}
-						}
-					}
-				}
-			}
-		}
-		todo = newTodo
-	}
-	if n != len(records) {
-		return nil, Mismatch{}
-	}
-	if err := chk(root, len(records)); err != nil {
-		return nil, err
-	}
 	return root, nil
-}
-
-func chk(n *Node, m int) (err error) {
-	if n.ID > m {
-		return fmt.Errorf("z")
-	} else if n.ID == m {
-		return fmt.Errorf("y")
-	} else {
-		for i := 0; i < len(n.Children); i++ {
-			err = chk(n.Children[i], m)
-			if err != nil {
-				return
-			}
-		}
-		return
-	}
 }
